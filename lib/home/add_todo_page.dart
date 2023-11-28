@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_app/model/todo_model.dart';
 
 class AddTodoPage extends StatefulWidget {
   const AddTodoPage({super.key});
@@ -8,7 +10,22 @@ class AddTodoPage extends StatefulWidget {
 }
 
 class _AddTodoPageState extends State<AddTodoPage> {
-  bool isCompleted = false;
+  final _formkey = GlobalKey<FormState>();
+  bool _isCompleted = false;
+  final _title = TextEditingController();
+  final _descrption = TextEditingController();
+  final _theAuthor = TextEditingController();
+
+  Future<void> addTodo() async {
+    final db = FirebaseFirestore.instance;
+    final todo = Todo(
+      title: _title.text,
+      description: _descrption.text,
+      isCompleted: _isCompleted,
+      theAuthor: _theAuthor.text,
+    );
+    await db.collection("todos").add(todo.toMap());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,25 +37,46 @@ class _AddTodoPageState extends State<AddTodoPage> {
       body: Padding(
         padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
         child: Form(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          key: _formkey,
+          child: ListView(
             children: [
               TextFormField(
-                decoration: const InputDecoration(hintText: 'Title'),
+                controller: _title,
+                decoration: const InputDecoration(
+                    hintText: 'Title', border: OutlineInputBorder()),
               ),
+              const SizedBox(height: 30),
               TextFormField(
-                decoration: const InputDecoration(hintText: 'description'),
+                controller: _descrption,
+                maxLines: 8,
+                decoration: const InputDecoration(
+                    hintText: 'description', border: OutlineInputBorder()),
               ),
+              const SizedBox(height: 30),
               CheckboxListTile(
-                  title: Text('Is Completed'),
-                  value: isCompleted,
-                  onChanged: (v) {
-                    setState(() {
-                      isCompleted = v ?? false;
-                    });
-                  }),
+                title: const Text('Is Completed'),
+                value: _isCompleted,
+                onChanged: (v) {
+                  setState(() {
+                    _isCompleted = v ?? false;
+                  });
+                },
+              ),
+              const SizedBox(height: 30),
               TextFormField(
-                decoration: const InputDecoration(hintText: 'the author'),
+                controller: _theAuthor,
+                decoration: const InputDecoration(
+                    hintText: 'the author', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 50),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  if (_formkey.currentState!.validate()) {
+                    await addTodo();
+                  }
+                },
+                icon: const Icon(Icons.publish),
+                label: const Text('Add Todo'),
               ),
             ],
           ),
