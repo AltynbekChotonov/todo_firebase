@@ -1,4 +1,7 @@
+import 'dart:js_interop';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_app/model/todo_model.dart';
 
@@ -43,7 +46,15 @@ class _AddTodoPageState extends State<AddTodoPage> {
               TextFormField(
                 controller: _title,
                 decoration: const InputDecoration(
-                    hintText: 'Title', border: OutlineInputBorder()),
+                  hintText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter text';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 30),
               TextFormField(
@@ -66,13 +77,39 @@ class _AddTodoPageState extends State<AddTodoPage> {
               TextFormField(
                 controller: _theAuthor,
                 decoration: const InputDecoration(
-                    hintText: 'the author', border: OutlineInputBorder()),
+                  hintText: 'the author',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter text';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 50),
               ElevatedButton.icon(
                 onPressed: () async {
                   if (_formkey.currentState!.validate()) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const CupertinoAlertDialog(
+                          title: Text('Please waiting'),
+                          content: Center(
+                              child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 30),
+                            child: CupertinoActivityIndicator(
+                              radius: 20,
+                              color: Colors.blue,
+                            ),
+                          )),
+                        );
+                      },
+                    );
+
                     await addTodo();
+                    Navigator.popUntil(context, (Route) => Route.isFirst);
                   }
                 },
                 icon: const Icon(Icons.publish),
