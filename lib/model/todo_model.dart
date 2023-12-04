@@ -2,13 +2,15 @@ import 'dart:convert';
 
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class Todo {
-  const Todo({
+  Todo({
+    this.id,
     required this.title,
     this.description,
     required this.isCompleted,
     required this.theAuthor,
   });
 
+  String? id;
   final String title;
   final String? description;
   final bool isCompleted;
